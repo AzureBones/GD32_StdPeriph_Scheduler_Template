@@ -1,0 +1,21 @@
+# ─── AI / Workflow Tools ────────────────────────────────────────────
+.trellis/
+.claude/
+
+# ─── Keil MDK Build Artifacts ───────────────────────────────────────
+Code/MDK/output/
+Code/MDK/list/
+
+# ─── Keil Per-User Files ────────────────────────────────────────────
+Code/MDK/*.uvguix.*
+Code/MDK/*.uvoptx
+
+# ─── Keil Analysis & Log Files ──────────────────────────────────────
+Code/MDK/*.txt
+Code/MDK/*.xlsx
+Code/MDK/*.csv
+Code/MDK/*.exe
+
+# ─── J-Link ─────────────────────────────────────────────────────────
+JLinkLog.txt
+JLinkSettings.ini
