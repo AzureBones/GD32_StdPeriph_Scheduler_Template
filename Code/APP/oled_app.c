@@ -8,7 +8,7 @@
 
 #include "mcu_cmic_gd32f470vet6.h"
 
-extern uint16_t adc_value[2];
+extern uint16_t adc_value[1000];
 
 /**
  * @brief	使用类似printf的方式显示字符串，显示6x8大小的ASCII字符

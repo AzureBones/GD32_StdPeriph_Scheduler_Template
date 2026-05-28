@@ -40,6 +40,7 @@ OF SUCH DAMAGE.
 #include "string.h"
 
 extern uint8_t usart0_rxbuffer[512];
+extern volatile uint8_t adc_dma_done;
 
 /*!
     \brief      this function handles NMI exception
@@ -171,6 +172,22 @@ void USART0_IRQHandler(void)
         dma_flag_clear(USART0_RX_DMA_PERIPH, USART0_RX_DMA_CHANNEL, DMA_FLAG_FTF);
         dma_transfer_number_config(USART0_RX_DMA_PERIPH, USART0_RX_DMA_CHANNEL, sizeof(usart0_rxbuffer));
         dma_channel_enable(USART0_RX_DMA_PERIPH, USART0_RX_DMA_CHANNEL);
+    }
+}
+
+void DMA1_Channel0_IRQHandler(void)
+{
+    if(RESET != dma_interrupt_flag_get(DMA1, DMA_CH0, DMA_INT_FLAG_FTF)) {
+        dma_interrupt_flag_clear(DMA1, DMA_CH0, DMA_INT_FLAG_FTF);
+        adc_dma_done = 1;
+        /* stop ADC DMA requests first (mirrors HAL_ADC_Stop_DMA) */
+        adc_dma_mode_disable(ADC0);
+        /* restart DMA controller */
+        dma_channel_disable(DMA1, DMA_CH0);
+        dma_transfer_number_config(DMA1, DMA_CH0, 1000);
+        dma_channel_enable(DMA1, DMA_CH0);
+        /* re-enable ADC DMA requests (mirrors HAL_ADC_Start_DMA) */
+        adc_dma_mode_enable(ADC0);
     }
 }
 
