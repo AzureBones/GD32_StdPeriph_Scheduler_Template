@@ -569,6 +569,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\adc_app.c</FilePath>
             </File>
+            <File>
+              <FileName>shell_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\shell_app.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

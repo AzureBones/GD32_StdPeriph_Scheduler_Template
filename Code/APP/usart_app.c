@@ -47,5 +47,5 @@ void uart_task(void)
     }
     ring_buffer_read(&uart0_rb, buf, len);
 
-    my_printf(DEBUG_USART, "%.*s", (int)len, buf);
+    shell_process(buf, (uint16_t)len);
 }

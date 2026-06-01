@@ -59,6 +59,7 @@ int main(void)
     my_printf(DEBUG_USART, "BOOT: sd_fatfs_test skipped (SD_FATFS_DEMO_ENABLE=0)\r\n");
 #endif
 
+    shell_init();
     scheduler_init();
     while(1) {
         scheduler_run();

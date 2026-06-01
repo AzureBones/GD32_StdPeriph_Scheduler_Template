@@ -28,6 +28,7 @@
 #include "usart_app.h"
 #include "rtc_app.h"
 #include "btn_app.h"
+#include "shell_app.h"
 #include "scheduler.h"
 
 #include "perf_counter.h"
