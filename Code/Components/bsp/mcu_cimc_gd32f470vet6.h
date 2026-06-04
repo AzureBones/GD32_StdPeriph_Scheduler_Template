@@ -5,8 +5,8 @@
 * Time: 2025/06/05
 * Note:
 */
-#ifndef MCU_CMIC_GD32F470VET6_H
-#define MCU_CMIC_GD32F470VET6_H
+#ifndef MCU_CIMC_GD32F470VET6_H
+#define MCU_CIMC_GD32F470VET6_H
 
 #include "gd32f4xx.h"
 #include "gd32f4xx_sdio.h"
@@ -317,6 +317,41 @@ void bsp_gd25qxx_init(void);
 #define SPI3_MISO              SPI3_MISO_PIN
 #define SPI3_MOSI              SPI3_MOSI_PIN
 
+/*
+ *   SPI_MODE_0  SPI_CK_PL_LOW_PH_1EDGE
+ *   SPI_MODE_1  SPI_CK_PL_LOW_PH_2EDGE
+ *   SPI_MODE_2  SPI_CK_PL_HIGH_PH_1EDGE
+ *   SPI_MODE_3  SPI_CK_PL_HIGH_PH_2EDGE
+ */
+#define SPI_MODE_0             SPI_CK_PL_LOW_PH_1EDGE
+#define SPI_MODE_1             SPI_CK_PL_LOW_PH_2EDGE
+#define SPI_MODE_2             SPI_CK_PL_HIGH_PH_1EDGE
+#define SPI_MODE_3             SPI_CK_PL_HIGH_PH_2EDGE
+
+#define GD30_SPIMODE           SPI_MODE_1
+
+#define GD30_SPI               SPI3
+#define GD30_DMA               DMA1
+#define GD30_DMA_CHANNEL_TX    DMA_CH1
+#define GD30_DMA_CHANNEL_RX    DMA_CH0
+#define GD30_DMA_SUBPERI       DMA_SUBPERI4
+
+#define GD30_DMA_RCU           RCU_DMA1
+#define GD30_SPI_RCU           RCU_SPI3
+
+#define GD30_SPI_PORT          SPI3_PORT
+#define GD30_SPI_PORT_RCU      SPI3_CLK_PORT
+#define GD30_SPI_SCK           SPI3_SCK
+#define GD30_SPI_MISO          SPI3_MISO
+#define GD30_SPI_MOSI          SPI3_MOSI
+
+#define GD30_CS_PORT           S_SPI_CS_PORT
+#define GD30_CS_PORT_RCU       RCU_GPIOE
+#define GD30_CS_PIN            S_SPI_CS_PIN
+
+#define GD30_CS_LOW()          gpio_bit_reset(GD30_CS_PORT, GD30_CS_PIN)
+#define GD30_CS_HIGH()         gpio_bit_set  (GD30_CS_PORT, GD30_CS_PIN)
+
 // FUNCTION
 void bsp_gd30ad3344_init(void);
 
@@ -400,6 +435,6 @@ int bsp_rtc_init(void);
   }
 #endif
 
-#endif /* MCU_CMIC_GD32F470VET6_H */
+#endif /* MCU_CIMC_GD32F470VET6_H */
 
 

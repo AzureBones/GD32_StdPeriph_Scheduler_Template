@@ -405,14 +405,14 @@
           <GroupName>Components/bsp</GroupName>
           <Files>
             <File>
-              <FileName>mcu_cmic_gd32f470vet6.c</FileName>
+              <FileName>mcu_cimc_gd32f470vet6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Components\bsp\mcu_cmic_gd32f470vet6.c</FilePath>
+              <FilePath>..\Components\bsp\mcu_cimc_gd32f470vet6.c</FilePath>
             </File>
             <File>
-              <FileName>mcu_cmic_gd32f470vet6.h</FileName>
+              <FileName>mcu_cimc_gd32f470vet6.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Components\bsp\mcu_cmic_gd32f470vet6.h</FilePath>
+              <FilePath>..\Components\bsp\mcu_cimc_gd32f470vet6.h</FilePath>
             </File>
           </Files>
         </Group>

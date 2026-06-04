@@ -6,7 +6,7 @@
 * Note:
 */
 
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 extern uint16_t adc_value[1000];
 

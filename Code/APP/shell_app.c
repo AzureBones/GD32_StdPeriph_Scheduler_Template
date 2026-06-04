@@ -1,4 +1,4 @@
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 #include "shell_app.h"
 #include "ff.h"
 #include <string.h>

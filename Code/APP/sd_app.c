@@ -1,4 +1,4 @@
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 FATFS fs;
 FIL fdst;

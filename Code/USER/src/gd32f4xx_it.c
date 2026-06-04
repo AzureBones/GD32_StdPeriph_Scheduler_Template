@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #include "gd32f4xx_it.h"
 #include "main.h"
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 #include "systick.h"
 #include "sdio_sdcard.h"
 #include "string.h"

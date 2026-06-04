@@ -5,7 +5,7 @@
 * Time: 2025/06/05
 * Note:
 */
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 /* OLED 命令和数据缓冲区 */
 __IO uint8_t oled_cmd_buf[2] = {0x00, 0x00};  // 命令缓冲区：控制字节 + 命令
@@ -15,7 +15,7 @@ __IO uint8_t oled_data_buf[2] = {0x40, 0x00}; // 数据缓冲区：控制字节 
 uint8_t spi3_send_array[ARRAYSIZE] = {0};    // SPI3 DMA 发送缓冲区
 uint8_t spi3_receive_array[ARRAYSIZE] = {0}; // SPI3 DMA 接收缓冲区
 
-/* SPI0 DMA 相关缓冲区 */
+/* SPI0 DMA 相关缓冲区 */                                                                                                                                                                                                                                       
 uint8_t spi1_send_array[ARRAYSIZE] = {0};    // SPI0 DMA 发送缓冲区
 uint8_t spi1_receive_array[ARRAYSIZE] = {0}; // SPI0 DMA 接收缓冲区
 
@@ -125,19 +125,18 @@ static void bsp_oled_disable_for_deepsleep(void)
 static void bsp_spi_disable_for_deepsleep(void)
 {
     SPI_FLASH_CS_HIGH();
-    SPI_GD30AD3344_CS_HIGH();
+    GD30_CS_HIGH();
 
     spi_dma_disable(SPI0, SPI_DMA_RECEIVE);
     spi_dma_disable(SPI0, SPI_DMA_TRANSMIT);
-    spi_dma_disable(SPI3, SPI_DMA_RECEIVE);
-    spi_dma_disable(SPI3, SPI_DMA_TRANSMIT);
+    spi_dma_disable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_disable(GD30_SPI, SPI_DMA_TRANSMIT);
 
-    dma_channel_disable(DMA1, DMA_CH2);
-    dma_channel_disable(DMA1, DMA_CH3);
-    dma_channel_disable(DMA1, DMA_CH4);
+    /* GD30 TX channel; RX (DMA1/CH0) is already disabled via ADC path */
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_TX);
 
     spi_disable(SPI0);
-    spi_disable(SPI3);
+    spi_disable(GD30_SPI);
 }
 
 static void bsp_sdio_disable_for_deepsleep(void)

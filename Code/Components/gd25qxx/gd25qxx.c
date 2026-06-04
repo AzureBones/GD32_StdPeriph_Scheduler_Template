@@ -1,4 +1,4 @@
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 #define WRITE 0x02 /* write to memory instruction */
 #define WRSR 0x01  /* write status register instruction */

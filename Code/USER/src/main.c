@@ -5,7 +5,7 @@
 * Time: 2025/05/15
 * Note:
 */
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 int main(void)
 {
@@ -52,7 +52,7 @@ int main(void)
     OLED_Init();
     my_printf(DEBUG_USART, "BOOT: oled done\r\n");
 
-    test_spi_flash();
+    //test_spi_flash();
 #if SD_FATFS_DEMO_ENABLE
     sd_fatfs_test();
 #else

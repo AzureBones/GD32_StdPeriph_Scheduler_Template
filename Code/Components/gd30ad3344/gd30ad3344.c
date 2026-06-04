@@ -1,7 +1,7 @@
 /*!
     \file    gd30ad3344.c
     \brief   gd30ad3344 driver
-    
+
     \version 2024-10-08, V1.0.0, firmware for GD30AD3344
 */
 
@@ -19,13 +19,13 @@ uint8_t spi_gd30ad3344_send_byte_dma(uint8_t byte)
 {
     /* 将数据放入发送缓冲区 */
     spi3_send_array[0] = byte;
-    
+
     /* 配置发送 DMA，只发送一个字节 */
     dma_single_data_parameter_struct dma_init_struct;
-    
+
     /* 配置 DMA 发送通道 */
-    dma_deinit(DMA1, DMA_CH4);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_TX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_send_array;
     dma_init_struct.direction           = DMA_MEMORY_TO_PERIPH;
     dma_init_struct.periph_memory_width = DMA_PERIPH_WIDTH_8BIT;
@@ -34,39 +34,39 @@ uint8_t spi_gd30ad3344_send_byte_dma(uint8_t byte)
     dma_init_struct.periph_inc          = DMA_PERIPH_INCREASE_DISABLE;
     dma_init_struct.memory_inc          = DMA_MEMORY_INCREASE_ENABLE;
     dma_init_struct.circular_mode       = DMA_CIRCULAR_MODE_DISABLE;
-    dma_single_data_mode_init(DMA1, DMA_CH4, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH4, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_TX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_TX, GD30_DMA_SUBPERI);
+
     /* 配置 DMA 接收通道 */
-    dma_deinit(DMA1, DMA_CH3);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_receive_array;
     dma_init_struct.direction           = DMA_PERIPH_TO_MEMORY;
     dma_init_struct.priority            = DMA_PRIORITY_HIGH;
-    dma_single_data_mode_init(DMA1, DMA_CH3, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH3, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_RX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_RX, GD30_DMA_SUBPERI);
+
     /* 启用接收和发送的 DMA 通道 */
-    dma_channel_enable(DMA1, DMA_CH3);
-    dma_channel_enable(DMA1, DMA_CH4);
-    
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 启用 SPI 的 DMA 接收和发送功能 */
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    
+    spi_dma_enable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_enable(GD30_SPI, SPI_DMA_TRANSMIT);
+
     /* 等待 DMA 传输完成 */
-    while(RESET == dma_flag_get(DMA1, DMA_CH3, DMA_FLAG_FTF));
-    
+    while(RESET == dma_flag_get(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF));
+
     /* 禁用 DMA */
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    dma_channel_disable(DMA1, DMA_CH3);
-    dma_channel_disable(DMA1, DMA_CH4);
-    
+    spi_dma_disable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_disable(GD30_SPI, SPI_DMA_TRANSMIT);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 清除 DMA 标志 */
-    dma_flag_clear(DMA1, DMA_CH3, DMA_FLAG_FTF);
-    dma_flag_clear(DMA1, DMA_CH4, DMA_FLAG_FTF);
-    
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF);
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_TX, DMA_FLAG_FTF);
+
     /* 返回接收到的数据 */
     return spi3_receive_array[0];
 }
@@ -78,19 +78,19 @@ uint8_t spi_gd30ad3344_send_byte_dma(uint8_t byte)
  */
 uint16_t spi_gd30ad3344_send_halfword_dma(uint16_t half_word)
 {
-    SPI_GD30AD3344_CS_LOW();
+    GD30_CS_LOW();
     uint16_t rx_data;
-    
+
     /* 先发送高8位 */
     spi3_send_array[0] = (uint8_t)(half_word >> 8);
     spi3_send_array[1] = (uint8_t)half_word;
-    
+
     /* 配置 DMA 参数 */
     dma_single_data_parameter_struct dma_init_struct;
-    
+
     /* 配置 DMA 发送通道 */
-    dma_deinit(DMA1, DMA_CH4);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_TX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_send_array;
     dma_init_struct.direction           = DMA_MEMORY_TO_PERIPH;
     dma_init_struct.periph_memory_width = DMA_PERIPH_WIDTH_8BIT;
@@ -99,43 +99,43 @@ uint16_t spi_gd30ad3344_send_halfword_dma(uint16_t half_word)
     dma_init_struct.periph_inc          = DMA_PERIPH_INCREASE_DISABLE;
     dma_init_struct.memory_inc          = DMA_MEMORY_INCREASE_ENABLE;
     dma_init_struct.circular_mode       = DMA_CIRCULAR_MODE_DISABLE;
-    dma_single_data_mode_init(DMA1, DMA_CH4, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH4, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_TX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_TX, GD30_DMA_SUBPERI);
+
     /* 配置 DMA 接收通道 */
-    dma_deinit(DMA1, DMA_CH3);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_receive_array;
     dma_init_struct.direction           = DMA_PERIPH_TO_MEMORY;
     dma_init_struct.priority            = DMA_PRIORITY_HIGH;
-    dma_single_data_mode_init(DMA1, DMA_CH3, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH3, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_RX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_RX, GD30_DMA_SUBPERI);
+
     /* 启用接收和发送的 DMA 通道 */
-    dma_channel_enable(DMA1, DMA_CH3);
-    dma_channel_enable(DMA1, DMA_CH4);
-    
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 启用 SPI 的 DMA 接收和发送功能 */
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    
+    spi_dma_enable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_enable(GD30_SPI, SPI_DMA_TRANSMIT);
+
     /* 等待 DMA 传输完成 */
-    while(RESET == dma_flag_get(DMA1, DMA_CH3, DMA_FLAG_FTF));
-    
+    while(RESET == dma_flag_get(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF));
+
     /* 禁用 DMA */
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    dma_channel_disable(DMA1, DMA_CH3);
-    dma_channel_disable(DMA1, DMA_CH4);
-    
+    spi_dma_disable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_disable(GD30_SPI, SPI_DMA_TRANSMIT);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 清除 DMA 标志 */
-    dma_flag_clear(DMA1, DMA_CH3, DMA_FLAG_FTF);
-    dma_flag_clear(DMA1, DMA_CH4, DMA_FLAG_FTF);
-    
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF);
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_TX, DMA_FLAG_FTF);
+
     /* 组合接收到的数据 */
     rx_data = (uint16_t)(spi3_receive_array[0] << 8);
     rx_data |= spi3_receive_array[1];
-    SPI_GD30AD3344_CS_HIGH();
+    GD30_CS_HIGH();
     return rx_data;
 }
 
@@ -151,18 +151,18 @@ void spi_gd30ad3344_transmit_receive_dma(uint8_t *tx_buffer, uint8_t *rx_buffer,
     if (size > ARRAYSIZE) {
         size = ARRAYSIZE;
     }
-    
+
     /* 准备发送数据 */
     for (uint16_t i = 0; i < size; i++) {
         spi3_send_array[i] = tx_buffer[i];
     }
-    
+
     /* 配置 DMA 参数 */
     dma_single_data_parameter_struct dma_init_struct;
-    
+
     /* 配置 DMA 发送通道 */
-    dma_deinit(DMA1, DMA_CH4);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_TX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_send_array;
     dma_init_struct.direction           = DMA_MEMORY_TO_PERIPH;
     dma_init_struct.periph_memory_width = DMA_PERIPH_WIDTH_8BIT;
@@ -171,39 +171,39 @@ void spi_gd30ad3344_transmit_receive_dma(uint8_t *tx_buffer, uint8_t *rx_buffer,
     dma_init_struct.periph_inc          = DMA_PERIPH_INCREASE_DISABLE;
     dma_init_struct.memory_inc          = DMA_MEMORY_INCREASE_ENABLE;
     dma_init_struct.circular_mode       = DMA_CIRCULAR_MODE_DISABLE;
-    dma_single_data_mode_init(DMA1, DMA_CH2, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH2, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_TX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_TX, GD30_DMA_SUBPERI);
+
     /* 配置 DMA 接收通道 */
-    dma_deinit(DMA0, DMA_CH3);
-    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(SPI_GD30AD3344);
+    dma_deinit(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_init_struct.periph_addr         = (uint32_t)&SPI_DATA(GD30_SPI);
     dma_init_struct.memory0_addr        = (uint32_t)spi3_receive_array;
     dma_init_struct.direction           = DMA_PERIPH_TO_MEMORY;
     dma_init_struct.priority            = DMA_PRIORITY_HIGH;
-    dma_single_data_mode_init(DMA1, DMA_CH3, &dma_init_struct);
-    dma_channel_subperipheral_select(DMA1, DMA_CH3, DMA_SUBPERI5);
-    
+    dma_single_data_mode_init(GD30_DMA, GD30_DMA_CHANNEL_RX, &dma_init_struct);
+    dma_channel_subperipheral_select(GD30_DMA, GD30_DMA_CHANNEL_RX, GD30_DMA_SUBPERI);
+
     /* 启用接收和发送的 DMA 通道 */
-    dma_channel_enable(DMA1, DMA_CH3);
-    dma_channel_enable(DMA1, DMA_CH4);
-    
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_enable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 启用 SPI 的 DMA 接收和发送功能 */
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_enable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    
+    spi_dma_enable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_enable(GD30_SPI, SPI_DMA_TRANSMIT);
+
     /* 等待 DMA 传输完成 */
-    while(RESET == dma_flag_get(DMA1, DMA_CH3, DMA_FLAG_FTF));
-    
+    while(RESET == dma_flag_get(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF));
+
     /* 禁用 DMA */
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_RECEIVE);
-    spi_dma_disable(SPI_GD30AD3344, SPI_DMA_TRANSMIT);
-    dma_channel_disable(DMA1, DMA_CH3);
-    dma_channel_disable(DMA1, DMA_CH4);
-    
+    spi_dma_disable(GD30_SPI, SPI_DMA_RECEIVE);
+    spi_dma_disable(GD30_SPI, SPI_DMA_TRANSMIT);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_RX);
+    dma_channel_disable(GD30_DMA, GD30_DMA_CHANNEL_TX);
+
     /* 清除 DMA 标志 */
-    dma_flag_clear(DMA1, DMA_CH3, DMA_FLAG_FTF);
-    dma_flag_clear(DMA1, DMA_CH4, DMA_FLAG_FTF);
-    
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF);
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_TX, DMA_FLAG_FTF);
+
     /* 复制接收到的数据到接收缓冲区 */
     for (uint16_t i = 0; i < size; i++) {
         rx_buffer[i] = spi3_receive_array[i];
@@ -216,11 +216,11 @@ void spi_gd30ad3344_transmit_receive_dma(uint8_t *tx_buffer, uint8_t *rx_buffer,
 void spi_gd30ad3344_wait_for_dma_end(void)
 {
     /* 等待 DMA 传输完成 */
-    while(RESET == dma_flag_get(DMA1, DMA_CH3, DMA_FLAG_FTF));
-    
+    while(RESET == dma_flag_get(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF));
+
     /* 清除 DMA 标志 */
-    dma_flag_clear(DMA1, DMA_CH3, DMA_FLAG_FTF);
-    dma_flag_clear(DMA1, DMA_CH4, DMA_FLAG_FTF);
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_RX, DMA_FLAG_FTF);
+    dma_flag_clear(GD30_DMA, GD30_DMA_CHANNEL_TX, DMA_FLAG_FTF);
 }
 
 
@@ -228,53 +228,44 @@ GD30AD3344 GD30AD3344_InitStruct;
 
 void GD30AD3344_Init(void)
 {
-    GD30AD3344_InitStruct.SS         = 0;        //写状态:0无作用 1开始单次转换（默认） 读的时候总是返回0 
-    GD30AD3344_InitStruct.MUX        = 4;        // 0(默认)      1         2         3         4         5         6         7
-                                                //AIN0~AIN1 AIN0~AIN3 AIN1~AIN3 AIN2~AIN3 AIN0~GND  AIN1~GND  AIN2~GND  AIN3~GND 
-    GD30AD3344_InitStruct.PGA        = 1;       //    0         1       2(默认)     3         4         5         6         7
+    GD30AD3344_InitStruct.SS         = GD30AD3344_OS_DISABLE;
+    GD30AD3344_InitStruct.MUX        = GD30AD3344_MUX_AIN0_GND;
+                                                //AIN0~AIN1 AIN0~AIN3 AIN1~AIN3 AIN2~AIN3 AIN0~GND  AIN1~GND  AIN2~GND  AIN3~GND
+    GD30AD3344_InitStruct.PGA        = GD30AD3344_PGA_2V048;
                                                 // ±6.144V   ±4.096V   ±2.048V   ±1.024V   ±0.512V   ±0.256V   ±0.256V  ±0.256V
-    GD30AD3344_InitStruct.MODE       = 0;        //0:连续转换模式    1:掉电，单次转换模式（默认） 
-    GD30AD3344_InitStruct.DR         = 1;        //    0         1         2         3         4         5         6         7
+    GD30AD3344_InitStruct.MODE       = GD30AD3344_MODE_CONTINUOUS;
+    GD30AD3344_InitStruct.DR         = GD30AD3344_DR_25SPS;
                                                 //  6.25SPS     12.5SPS   25SPS     50SPS     100SPS    250SPS    500SPS    1000SPS
-    GD30AD3344_InitStruct.RESERVED_1 = 0;        //保留:写的时候写1，读的时候返回0或1 
-    GD30AD3344_InitStruct.PULL_UP_EN = 0;        //0:关闭DOUT引脚上拉电阻(默认)    1:开启DOUT引脚上拉电阻
-    GD30AD3344_InitStruct.NOP        = 1;        //0:不更新配置寄存器的数据  1:更新配置寄存器的数据(默认)  2:无效数据，且不更新配置寄存器数据
-    GD30AD3344_InitStruct.RESERVED   = 1;        //保留:写的时候写1，读的时候返回0或1 
-    
-    spi_enable(SPI_GD30AD3344);
+    GD30AD3344_InitStruct.RESERVED_1 = GD30AD3344_RESERVED_0;
+    GD30AD3344_InitStruct.PULL_UP_EN = GD30AD3344_PULL_UP_DISABLE;
+    GD30AD3344_InitStruct.NOP        = GD30AD3344_NOP_VALID_UPDATE;
+    GD30AD3344_InitStruct.RESERVED   = GD30AD3344_RESERVED_1;
+
+    spi_enable(GD30_SPI);
     spi_gd30ad3344_send_halfword_dma(GD30AD3344_InitStruct_Value);
     my_printf(DEBUG_USART, "0x%4X", GD30AD3344_InitStruct_Value);
 }
 
-float PGA_DATA = 0.0;
 float ADS118_PGA_SET(GD30AD3344_PGA_TypeDef PGA)
 {
-
-    if(PGA == GD30AD3344_PGA_6V144)
-        PGA_DATA = 6.144;
-        
-
-    if(PGA == GD30AD3344_PGA_4V096)
-        PGA_DATA = 4.096;
-
-
-    if(PGA == GD30AD3344_PGA_2V048)
-        PGA_DATA = 2.048;
-
-
-    if(PGA == GD30AD3344_PGA_1V024)
-        PGA_DATA = 1.024;
-
-
-    if(PGA == GD30AD3344_PGA_0V512)
-        PGA_DATA = 0.512;
-
-
-    if(PGA == GD30AD3344_PGA_0V512)
-        PGA_DATA = 0.256;
-
-    return (float)PGA_DATA;
-
+    switch(PGA) {
+    case GD30AD3344_PGA_6V144:
+        return 6.144f;
+    case GD30AD3344_PGA_4V096:
+        return 4.096f;
+    case GD30AD3344_PGA_2V048:
+        return 2.048f;
+    case GD30AD3344_PGA_1V024:
+        return 1.024f;
+    case GD30AD3344_PGA_0V512:
+        return 0.512f;
+    case GD30AD3344_PGA_0V256:
+        return 0.256f;
+    case GD30AD3344_PGA_0V064:
+        return 0.064f;
+    default:
+        return 2.048f;
+    }
 }
 
 float GD30AD3344_AD_Read(GD30AD3344_Channel_TypeDef CH, GD30AD3344_PGA_TypeDef Ref)
@@ -286,7 +277,7 @@ float GD30AD3344_AD_Read(GD30AD3344_Channel_TypeDef CH, GD30AD3344_PGA_TypeDef R
     GD30AD3344_InitStruct.PGA = Ref;
 
     raw_data = spi_gd30ad3344_send_halfword_dma(GD30AD3344_InitStruct_Value);
-    
-    result = (float)raw_data * ADS118_PGA_SET(Ref) / 32768;
+
+    result = (float)((int16_t)raw_data) * ADS118_PGA_SET(Ref) / 32768.0f;
     return (float)result;
 }

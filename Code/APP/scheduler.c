@@ -5,7 +5,7 @@
 * Time: 2025/06/05
 * Note:
 */
-#include "mcu_cmic_gd32f470vet6.h"
+#include "mcu_cimc_gd32f470vet6.h"
 
 /* Number of scheduler tasks in scheduler_task[]. */
 uint8_t task_num;
